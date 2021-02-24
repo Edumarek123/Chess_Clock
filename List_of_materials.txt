@@ -11,4 +11,4 @@
 -2x Seven segments four digits displays(common anode)
 -Some Conectors for the leds and buttons
 
-* I haven`t made the price table and total because that depends on where you live*
+* I haven`t made the pricing table and total because that depends on where you live*
