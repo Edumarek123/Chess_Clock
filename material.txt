@@ -1,0 +1,14 @@
+-1x Atemga328p-pu
+-1x CI 7447
+-2x fliperama buttons
+-1x Reset/enter push button
+-8x 1k own resistors
+-1x 330own resistor
+-2x 5mm high brigtness leds
+-4,5V~5V power suply
+-400mmx200mmx3mm~5mm wood(or another material) sheet
+-PCB
+-2x Seven segments four digits displays(common anode)
+-Some Conectors for the leds and buttons
+
+* I haven`t made the price table and total because that depends on where you live*

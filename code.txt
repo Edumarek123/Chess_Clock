@@ -1,0 +1,339 @@
+/*
+ * TesteBotao.cpp
+ *
+ * Created: 12/02/2021 02:33:28
+ * Author : Dudu
+ */ 
+
+#define comeca_ADC ADCSRA|=(0x40)
+#define convertendo (ADCSRA&(0x40))
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+int minutos_jogador1;
+int segundos_jogador1;
+int minutos_jogador2;
+int segundos_jogador2;
+int jogando=3;
+int tempo_selecionado;
+int acrescimo;
+int contador_J1=0;
+int contador_J2=0;
+
+void liga_segmentos(int numero);
+void digito1e2(int minutos);
+void digito3e4(int segundos);
+void digito5e6(int minutos);
+void digito7e8(int segundos);
+void aciona_displays();
+void seleciona_modo(int coeficiente);
+int leitura_seletor();
+int conversor_coeficiente(int coeficiente);
+void inicia_variaveis();
+ISR(INT0_vect);
+ISR(INT1_vect);
+ISR(PCINT2_vect);
+
+int main(void)
+{
+  PORTD|=(0x1C); //pull up na entrada de pd2 pd3 pd4
+  DDRB|=(0xFF); //define todas portas B como saidas
+  DDRC|=(0x0F); //defini pc0-3 como saidas
+  DDRD|=(0x03); //define pd0 e pd1 como saidas
+  EICRA=(0x0A); //define modo de operacaod do Int0 e Int1
+  EIMSK=(0x03); //habilita interrupçao em Int0 e Int1
+  PCICR|=(0x04);  //nao sei
+  PCMSK2|=(0x10); //habilita interrupçao em PCINT20
+  ADMUX|=(0x45);  //define AVcc(+5V) como ref e seleciona mux em PC5
+  ADCSRA|=(0x87);  //Liga o conversor e define fator de divisao 128
+  sei();  //habilita interrupcoes
+  
+  inicia_variaveis();
+    while (1) 
+    {
+    switch(jogando)
+    {
+      case(1): //jogador 1
+      if (segundos_jogador1==60)
+      {
+        segundos_jogador1=0;
+        minutos_jogador1++;
+      }
+      aciona_displays();
+      if (minutos_jogador1==0 && segundos_jogador1==0)
+      {
+        jogando=3;
+        minutos_jogador1=35;
+        segundos_jogador1=7;
+	minutos_jogador2=10;
+      }
+      if (segundos_jogador1==0 && minutos_jogador1!=0)
+      {
+        segundos_jogador1=59;
+        minutos_jogador1--;
+      }
+      if (contador_J1==125)
+      {
+        segundos_jogador1--;
+        contador_J1=0;
+      }
+      contador_J1++;
+      break;
+      case(2): //jogador 2
+      if (segundos_jogador2==60)
+      {
+        segundos_jogador2=0;
+        minutos_jogador2++;
+      }
+      aciona_displays();
+      if (minutos_jogador2==0 && segundos_jogador2==0)
+      {
+        jogando=3;
+        minutos_jogador2=35;
+        segundos_jogador2=7;
+	minutos_jogador1=10;
+      }
+      if (segundos_jogador2==0 && minutos_jogador2!=0)
+      {
+        segundos_jogador2=59;
+        minutos_jogador2--;
+      }
+      if (contador_J2==125)
+      {
+        segundos_jogador2--; 
+        contador_J2=0;
+      }
+      contador_J2++;
+      break;
+      case(3): //pausado
+        aciona_displays();
+      break;
+    }
+    }
+	return(0);
+}
+
+void inicia_variaveis()
+{
+  int coeficiente=0, contador;
+  for (contador=0;contador<10;contador++)
+    coeficiente+=leitura_seletor();
+  coeficiente/=10;
+  coeficiente=conversor_coeficiente(coeficiente);
+  coeficiente=2;
+  seleciona_modo(coeficiente);
+  minutos_jogador1=tempo_selecionado;
+  minutos_jogador2=tempo_selecionado;
+  segundos_jogador1=0;
+  segundos_jogador2=0;
+}
+
+int leitura_seletor(){
+  int valor;
+  comeca_ADC;
+  while (convertendo);
+  valor=ADC;
+  return(valor);
+}
+
+int conversor_coeficiente(int coeficiente)
+{
+  int coeficiente_ajustado;
+  if (coeficiente<128)
+    coeficiente_ajustado=1;
+  if (coeficiente>=128 && coeficiente<256)
+    coeficiente_ajustado=2;
+  if (coeficiente>=256 && coeficiente<384)
+    coeficiente_ajustado=3;
+  if (coeficiente>=384 && coeficiente<512)
+    coeficiente_ajustado=4;
+  if (coeficiente>=512 && coeficiente<640)
+    coeficiente_ajustado=5;
+  if (coeficiente>=640 && coeficiente<768)
+    coeficiente_ajustado=6;
+  if (coeficiente>=768 && coeficiente<896)
+    coeficiente_ajustado=7;
+  if (coeficiente>=896)
+    coeficiente_ajustado=8;
+  return(coeficiente_ajustado);
+}
+
+void seleciona_modo(int coeficiente)
+{
+  switch(coeficiente)
+  {
+    case (1):  //1
+    tempo_selecionado=1;
+    acrescimo=0;
+    break;
+    case (2): //1|1
+    tempo_selecionado=1;
+    acrescimo=1;
+    break;
+    case (3): //2|1
+    tempo_selecionado=2;
+    acrescimo=1;
+    break;
+    case (4): //3|2
+    tempo_selecionado=3;
+    acrescimo=2;
+    break;
+    case (5): //5
+    tempo_selecionado=5;
+    acrescimo=0;
+    break;
+    case (6): //10
+    tempo_selecionado=10;
+    acrescimo=0;
+    break;
+    case (7): //30
+    tempo_selecionado=30;
+    acrescimo=0;
+    break;
+    case (8): //60
+    tempo_selecionado=60;
+    acrescimo=0;
+    break;
+  }
+}
+void aciona_displays()
+{
+  digito1e2(minutos_jogador1);
+  digito3e4(segundos_jogador1);
+  digito5e6(minutos_jogador2);
+  digito7e8(segundos_jogador2);
+}
+void digito1e2(int minutos){
+  int min_dig1, min_dig2;
+  min_dig1=minutos/10; //separa os algarismos dos minutos
+  min_dig2=minutos%10;
+  //dig1
+  PORTB|=(0x10); //liga dig1
+  liga_segmentos(min_dig1);
+  PORTB&=(0x0F); //desliga dig1
+  //dig2
+  PORTB|=(0x20); //liga dig2
+  liga_segmentos(min_dig2);
+  PORTB&=(0x0F); //desliga dig2
+}
+
+void digito3e4(int segundos){
+  int seg_dig1, seg_dig2;
+  seg_dig1=segundos/10; //separa os algarismos dos segundos
+  seg_dig2=segundos%10;
+  //dig3
+  PORTB|=(0x40); //liga dig3
+  liga_segmentos(seg_dig1);
+  PORTB&=(0x0F); //desliga dig3
+  //dig4
+  PORTB|=(0x80); //liga dig4
+  liga_segmentos(seg_dig2);
+  PORTB&=(0x0F); //desliga dig4
+}
+
+void digito5e6(int minutos)
+{
+  int min_dig1, min_dig2;
+  min_dig1=minutos/10; //separa os algarismos dos minutos
+  min_dig2=minutos%10;
+  //dig5
+  PORTC|=(0x01); //liga dig5
+  liga_segmentos(min_dig1);
+  PORTC&=(0xF0); //desliga dig5
+  //dig6
+  PORTC|=(0x02); //liga dig6
+  liga_segmentos(min_dig2);
+  PORTC&=(0xF0); //desliga dig6
+}
+
+void digito7e8(int segundos)
+{
+  int seg_dig1, seg_dig2;
+  seg_dig1=segundos/10; //separa os algarismos dos segundos
+  seg_dig2=segundos%10;
+  //dig7
+  PORTC|=(0x04); //liga dig7
+  liga_segmentos(seg_dig1);
+  PORTC&=(0xF0); //desliga dig7
+  //dig8
+  PORTC|=(0x08); //liga dig8
+  liga_segmentos(seg_dig2);
+  PORTC&=(0xF0); //desliga dig8
+}
+
+void liga_segmentos(int numero)
+{
+  switch(numero)
+  {
+    case (0):
+    PORTB&=(0xF0);
+    break;
+    case (1):
+    PORTB|=(0x01);
+    break;
+    case (2):
+    PORTB|=(0x02);
+    break;
+    case (3):
+    PORTB|=(0x03);
+    break;
+    case (4):
+    PORTB|=(0x04);
+    break;
+    case (5):
+    PORTB|=(0x05);
+    break;
+    case (6):
+    PORTB|=(0x06);
+    break;
+    case (7):
+    PORTB|=(0x07);
+    break;
+    case (8):
+    PORTB|=(0x08);
+    break;
+    case (9):
+    PORTB|=(0x09);
+    break;
+  }
+  _delay_ms(1);
+  PORTB&=(0xF0); //reset seg_x
+}
+
+ISR(INT0_vect)  //botao1
+{
+	if (jogando!=1)
+	{
+		jogando=1;
+		PORTD&=~(0x02); //inverte os leds
+		PORTD|=(0x01);
+		segundos_jogador1+=acrescimo;
+	}
+	_delay_ms(5);
+}
+
+ISR(INT1_vect)  //botao2
+{
+	if (jogando!=2)
+	{
+		jogando=2;
+		PORTD&=~(0x01);  //inverte os leds
+		PORTD|=(0x02);
+		segundos_jogador2+=acrescimo;
+	}
+	_delay_ms(5);
+}
+
+ISR(PCINT2_vect)  //pause/reset
+{
+  if (jogando==3)
+  {
+    inicia_variaveis();
+    PORTD&=(0xFC); //apaga leds
+  }
+  jogando=3;
+  _delay_ms(600);
+}
+
