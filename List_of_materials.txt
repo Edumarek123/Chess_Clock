@@ -6,7 +6,7 @@
 -1x 330own resistor
 -2x 5mm high brigtness leds
 -4,5V~5V power suply
--400mmx200mmx3mm~5mm wood(or another material) sheet
+-400mmx200mmx4mm~6mm wood(or another material) sheet
 -PCB
 -2x Seven segments four digits displays(common anode)
 -Some Conectors for the leds and buttons
