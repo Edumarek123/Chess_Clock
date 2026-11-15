@@ -1,24 +1,55 @@
+<div align="center">
+
 # Chess Clock
 
-A homemade chess clock project for controlling time during chess matches.
+**A DIY chess clock project covering electronics, PCB design, and firmware materials.**
+
+![Project](https://img.shields.io/badge/project-DIY%20electronics-0A7F8C)
+![Hardware](https://img.shields.io/badge/hardware-PCB%20%2F%20embedded-6f42c1)
+![Status](https://img.shields.io/badge/status-hardware%20project-lightgrey)
+
+</div>
 
 ## Overview
 
-The repository collects the design and implementation materials for a custom chess clock, including electronics documentation and supporting code.
+Chess_Clock is a homemade chess-clock project intended to control time during chess matches. The repository gathers design and implementation materials, including blueprints, PCB layouts, Gerber manufacturing files, component datasheets, a bill of materials, and code.
 
-## Repository contents
+## Project materials
 
-- `Blueprints/` — design drawings
-- `PCB_layouts/` — printed circuit board layouts
-- `GerberFiles_Clock/` — manufacturing files
-- `datasheets/` — component datasheets
-- `List_of_materials.txt` — bill of materials
-- `code.txt` — project code
+| Path | Purpose |
+|---|---|
+| `Blueprints/` | Design drawings |
+| `PCB_layouts/` | PCB layout material |
+| `GerberFiles_Clock/` | PCB manufacturing outputs |
+| `datasheets/` | Component datasheets |
+| `List_of_materials.txt` | Bill of materials |
+| `code.txt` | Firmware / code material |
+| `LICENSE` | License file |
 
-## Project focus
+## Reproducing the hardware
 
-A hands-on electronics project covering hardware design, PCB preparation, component selection, and embedded implementation.
+Before manufacturing or assembling the project:
 
-## Status
+1. Review the blueprints and PCB layouts.
+2. Check the Gerber files against the intended board revision.
+3. Verify every component against the datasheets.
+4. Compare the bill of materials with the actual design files.
+5. Inspect the code and confirm the expected microcontroller and pin assignments.
 
-Personal hardware project. Check the included design files and component documentation before attempting to reproduce the build.
+The repository does not currently provide a fully documented assembly procedure or a verified hardware revision matrix.
+
+## Engineering topics
+
+- Electronics prototyping
+- Printed circuit board design
+- Component selection
+- Manufacturing-file preparation
+- Embedded programming
+
+## Project status
+
+Personal hardware project. The files are provided as project materials; successful reproduction depends on confirming component compatibility and the current design state.
+
+## License
+
+The repository includes a license file. Review it before reusing or redistributing the project.
