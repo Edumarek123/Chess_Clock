@@ -84,4 +84,6 @@ The BOM and firmware are useful starting points, but the hardware should be inde
 
 ## License
 
-A `LICENSE` file is present in the repository. Read that file for the exact terms governing reuse and redistribution.
+This project is licensed under the **GNU General Public License v3.0 only (GPL-3.0-only)**. You may use, study, modify, and redistribute this project under the terms of the license.
+
+See [LICENSE](LICENSE) for the complete license text. Third-party components and assets remain subject to their own licenses and notices.
